@@ -11,8 +11,8 @@ st.sidebar.header("Upload PDF")
 uploaded_file = st.sidebar.file_uploader("Choose a PDF file", type=["pdf"])
 
 # API endpoints (adjust if running elsewhere)
-VECTOR_API_URL = "http://localhost:8000/vector/vector"
-QUERY_API_URL = "http://localhost:8000/query/query"
+VECTOR_API_URL =  "https://chatrag-backend-2.onrender.com/vector/vector"
+QUERY_API_URL =  "https://chatrag-backend-2.onrender.com/query/query"
 
 # --- Session state for table_path and chat history ---
 if "table_path" not in st.session_state:
