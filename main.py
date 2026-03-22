@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+import uvicorn
+import os
 from api.router.vectorRouter import router as vector_router
 from api.router.queryRouter import router as query_router
 
@@ -21,3 +22,8 @@ default_message = {"message": "API is running"}
 @app.get("/")
 def read_root():
     return default_message
+
+
+if __name__ == "__main__":
+    port = 8000
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
