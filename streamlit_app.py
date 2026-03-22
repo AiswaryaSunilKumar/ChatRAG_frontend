@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import os
+from langchain_community.document_loaders import PyPDFLoader
 
 st.set_page_config(page_title="PDF Chatbot", page_icon="🤖", layout="wide")
 st.title("📄 Chat with your PDF!")
@@ -25,10 +26,18 @@ if "vector_store_created" not in st.session_state:
 # --- Handle PDF upload ---
 if uploaded_file:
     temp_dir = "./uploaded_pdfs"
-    os.makedirs(temp_dir, exist_ok=True)
+    # os.makedirs(temp_dir, exist_ok=True)
     file_path = os.path.join(temp_dir, uploaded_file.name)
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+    # with open(file_path, "wb") as f:
+    #     f.write(uploaded_file.getbuffer())
+
+
+    loader = PyPDFLoader(uploaded_file)
+    docs = loader.load()
+
+
+
+
     # If new file or file changed, reset state
     if st.session_state.get("table_path") != file_path:
         st.session_state["chat_history"] = []
@@ -37,7 +46,7 @@ if uploaded_file:
     # Only create vector store if not already created
     if not st.session_state.get("vector_store_created"):
         with st.spinner("Processing PDF and creating vector store..."):
-            resp = requests.post(VECTOR_API_URL, json={"table_path": file_path})
+            resp = requests.post(VECTOR_API_URL, json={"table_path": file_path,"docs" : docs})
             if resp.status_code == 200:
                 st.success("Vector store created! You can now chat with your PDF.")
                 st.session_state["vector_store_created"] = True
