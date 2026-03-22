@@ -24,16 +24,36 @@ if "vector_store_created" not in st.session_state:
     st.session_state["vector_store_created"] = False
 
 # --- Handle PDF upload ---
+# if uploaded_file:
+#     temp_dir = "./uploaded_pdfs"
+#     # os.makedirs(temp_dir, exist_ok=True)
+#     file_path = os.path.join(temp_dir, uploaded_file.name)
+#     # with open(file_path, "wb") as f:
+#     #     f.write(uploaded_file.getbuffer())
+
 if uploaded_file:
     temp_dir = "./uploaded_pdfs"
-    # os.makedirs(temp_dir, exist_ok=True)
-    file_path = os.path.join(temp_dir, uploaded_file.name)
-    # with open(file_path, "wb") as f:
-    #     f.write(uploaded_file.getbuffer())
+    os.makedirs(temp_dir, exist_ok=True)
 
+    import uuid
+    file_path = os.path.join(temp_dir, f"{uuid.uuid4()}.pdf")
 
-    loader = PyPDFLoader(uploaded_file)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    loader = PyPDFLoader(file_path)
     docs = loader.load()
+    docs_json = [
+    {
+        "page_content": doc.page_content,
+        "metadata": doc.metadata
+    }
+    for doc in docs
+]
+
+
+    # loader = PyPDFLoader(uploaded_file)
+    # docs = loader.load()
 
 
 
@@ -46,7 +66,7 @@ if uploaded_file:
     # Only create vector store if not already created
     if not st.session_state.get("vector_store_created"):
         with st.spinner("Processing PDF and creating vector store..."):
-            resp = requests.post(VECTOR_API_URL, json={"table_path": file_path,"docs" : docs})
+            resp = requests.post(VECTOR_API_URL, json={"table_path": file_path,"docs" : docs_json})
             if resp.status_code == 200:
                 st.success("Vector store created! You can now chat with your PDF.")
                 st.session_state["vector_store_created"] = True
